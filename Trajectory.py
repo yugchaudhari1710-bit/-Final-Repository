@@ -1,4 +1,3 @@
-```python
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -217,4 +216,3 @@ try:
 
 except Exception as e:
     st.error(f"Error: {e}")
-```
