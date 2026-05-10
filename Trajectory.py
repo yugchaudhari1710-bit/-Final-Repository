@@ -203,7 +203,7 @@ def generate_well_trajectory(surface, Vb, target, phi, step, t_type, drop_rate=N
                     inc_next = alpha_max
                 elif sec == "Drop":
                     inc_next = inc - DR * step
-                elif
+                else
                     inc_next = alpha
                 section = sec
                 break
