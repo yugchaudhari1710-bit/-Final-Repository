@@ -79,20 +79,41 @@ def generate_well_trajectory(surface, Vb, target, phi, step, t_type, drop_rate=N
             ("Hold", MD_build, MD_target),
         ]
 
-    # ---------- J TYPE ----------
-    elif t_type == "J-Type (Type II)":
-        dV = Vt - Zs
-        alpha = math.atan2(H_t, dV)
+# ---------- J TYPE ----------
+elif t_type == "J-Type (Type II)":
 
-        MD_build = 100 * math.degrees(alpha) / phi
-        MD_target = MD_build + dV / math.cos(alpha)
+    # Vertical depth after KOP
+    dV = Vt - Vb
 
-        sections = [
-            ("Build", 0, MD_build),
-            ("Hold", MD_build, MD_target),
-        ]
+    # Final inclination
+    alpha = math.atan2(H_t, dV)
 
-    # ---------- S TYPE ----------
+    # Radius of curvature
+    R = 18000 / (math.pi * phi)
+
+    # Build section calculations
+    V_build = R * math.sin(alpha)
+    H_build = R * (1 - math.cos(alpha))
+
+    # Remaining tangent section
+    V_hold = dV - V_build
+    H_hold = H_t - H_build
+
+    # Tangent length
+    L_hold = V_hold / math.cos(alpha)
+
+    # MD calculations
+    MD_kop = Vb
+    MD_build = MD_kop + (100 * math.degrees(alpha) / phi)
+    MD_target = MD_build + L_hold
+
+    sections = [
+        ("Vertical", 0, MD_kop),
+        ("Build", MD_kop, MD_build),
+        ("Hold", MD_build, MD_target),
+    ]   
+
+# ---------- S TYPE ----------
     else:
         alpha_max = math.radians(max_inc)
         R_drop = 18000 / (math.pi * drop_rate)
