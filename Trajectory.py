@@ -81,62 +81,61 @@ def generate_well_trajectory(surface, Vb, target, phi, step, t_type, drop_rate=N
 
     # ---------- J TYPE ----------
     elif t_type == "J-Type (Type II)":
+        # -----------------------------
+        # USER CONTROLLED PARAMETERS
+        # -----------------------------
+        
+        # Recommended final inclination
+        # (Typical J profile: 25°–45°)
+        alpha_deg = 35
 
-    # -----------------------------
-    # USER CONTROLLED PARAMETERS
-    # -----------------------------
-    
-    # Recommended final inclination
-    # (Typical J profile: 25°–45°)
-    alpha_deg = 35
+        alpha = math.radians(alpha_deg)
 
-    alpha = math.radians(alpha_deg)
+        # Radius of curvature
+        R = 18000 / (math.pi * phi)
 
-    # Radius of curvature
-    R = 18000 / (math.pi * phi)
+        # -----------------------------
+        # BUILD SECTION
+        # -----------------------------
 
-    # -----------------------------
-    # BUILD SECTION
-    # -----------------------------
+        # Build length
+        L_build = R * alpha
 
-    # Build length
-    L_build = R * alpha
+        # Vertical gain during build
+        V_build = R * math.sin(alpha)
 
-    # Vertical gain during build
-    V_build = R * math.sin(alpha)
+        # Horizontal displacement during build
+        H_build = R * (1 - math.cos(alpha))
 
-    # Horizontal displacement during build
-    H_build = R * (1 - math.cos(alpha))
+        # -----------------------------
+        # REMAINING TARGET DISTANCE
+        # -----------------------------
 
-    # -----------------------------
-    # REMAINING TARGET DISTANCE
-    # -----------------------------
+        remaining_vertical = Vt - Vb - V_build
+        remaining_horizontal = H_t - H_build
 
-    remaining_vertical = Vt - Vb - V_build
-    remaining_horizontal = H_t - H_build
+        # Hold section length
+        L_hold = remaining_vertical / math.cos(alpha)
 
-    # Hold section length
-    L_hold = remaining_vertical / math.cos(alpha)
+        # -----------------------------
+        # MEASURED DEPTHS
+        # -----------------------------
 
-    # -----------------------------
-    # MEASURED DEPTHS
-    # -----------------------------
+        MD_kop = Vb
 
-    MD_kop = Vb
+        MD_build_end = MD_kop + L_build
 
-    MD_build_end = MD_kop + L_build
+        MD_target = MD_build_end + L_hold
 
-    MD_target = MD_build_end + L_hold
+        # -----------------------------
+        # TRAJECTORY SECTIONS
+        # -----------------------------
 
-    # -----------------------------
-    # TRAJECTORY SECTIONS
-    # -----------------------------
-
-    sections = [
-        ("Vertical", 0, MD_kop),
-        ("Build", MD_kop, MD_build_end),
-        ("Hold", MD_build_end, MD_target),
-    ]
+        sections = [
+            ("Vertical", 0, MD_kop),
+            ("Build", MD_kop, MD_build_end),
+            ("Hold", MD_build_end, MD_target),
+        ]
 
     # ---------- S TYPE ----------
     else:
@@ -204,7 +203,7 @@ def generate_well_trajectory(surface, Vb, target, phi, step, t_type, drop_rate=N
                     inc_next = alpha_max
                 elif sec == "Drop":
                     inc_next = inc - DR * step
-               elif sec == "Hold":
+                elif sec == "Hold":
                     inc_next = alpha
                 section = sec
                 break
